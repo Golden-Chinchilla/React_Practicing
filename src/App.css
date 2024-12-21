@@ -6,3 +6,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.editBtn {
+    background-color: darkcyan;
+}
+
+.delBtn {
+    background-color: darkred;
+}

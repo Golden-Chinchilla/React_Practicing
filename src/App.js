@@ -1,4 +1,4 @@
-// 最原始的一版写法，祖孙组件间的数据通过祖传父，父传孙的方式实现
+// 最原始的一版写法，祖孙组件间的数据通过祖传父，父传子的方式实现
 
 import './App.css'
 import { useState } from 'react'
@@ -8,8 +8,11 @@ function Todo({ todoObj, delItem, editItem, changeItem, updateItem }) {
     <div className='todo-container'>
       <input type='checkbox' onChange={() => { changeItem(todoObj) }}></input>
       <span className='todo-content'>{!todoObj.isEdit && todoObj.content}</span>
-      {/* input标签中没有onChange事件，react把这里的内容变成了只读，导致后续的updateItem函数无法执行，跟Vue相比，这是一个很大的不同之处 */}
-      {todoObj.isEdit && <input value={todoObj.content} onBlur={(e) => { updateItem(todoObj, e) }} />}
+      {/* ⚠️ */}
+      {/* 这里如果用 value 属性，那么当编辑的时候，输入框里面时没有相应的，根据报错的提示，如果你要用 value，就需要绑定一个对应的 onChange 函数来处理用户的修改 */}
+      {/* 有一个更好的方案，这里用 defaultValue 属性，（defaultValue 是 JavaScript DOM API 提供的属性，而不是 HTML 的原生属性，所以在查 HTML 文档的时候查不到这个属性） */}
+      {/* 其中涉及的原理就是React中的受控与非受控组件：使用了 value，那这就是一个受控组件，使用了 defaultValue 拿这就是一个非受控组件 */}
+      {todoObj.isEdit && <input autoFocus defaultValue={todoObj.content} onBlur={(e) => { updateItem(todoObj, e) }} />}
       <button className='editBtn' onClick={() => { editItem(todoObj) }}>编辑</button>
       <button className='delBtn' onClick={() => { delItem(todoObj) }}>删除</button>
     </div>
@@ -42,18 +45,21 @@ function Input({ addItem }) {
     }
   }
   return (
-    <input placeholder='输入todo' onKeyUp={handleEnter} />
+    <input autoFocus placeholder='输入todo' onKeyUp={handleEnter} />
   )
 }
 
-
-function Footer({ itemList }) {
+// 逻辑参考可： https://www.bilibili.com/video/BV1Zy4y1K7SH/?p=76&share_source=copy_web&vd_source=0aea19ec4b198c37de1af0ea5c5b63fb
+function Footer({ itemList, selectAllItems, cancellAllItems }) {
   const totalLength = itemList.length
   const isDoneLength = itemList.filter(item => item.isDone === true).length
   return (
     <div>
-      <input type='checkbox'></input>
+      <input type='checkbox' onChange={selectAllItems}></input>
       <span>已完成：{isDoneLength}/ 总计：{totalLength}</span>
+      {/* 所有 todo 的 isDone 都为 true 的时候触发 */}
+      <button>清除选中的选项</button>
+      <button>清除所有选项</button>
     </div>)
 }
 
@@ -61,7 +67,6 @@ function Footer({ itemList }) {
 function App() {
   // itemList 是公共数组，需要被多个组件使用
   const [itemList, setItemList] = useState([])
-  // 更新用户的 todo 数组
   const addItem = (todoObj) => {
     setItemList([...itemList, todoObj])
   }
@@ -90,14 +95,29 @@ function App() {
       return item
     }))
   }
+  const selectAllItems = () => {
+    setItemList(itemList.map(item => {
+      item.isDone = true
+      return item
+    }))
+  }
+  const cancellAllItems = () => {
+    setItemList(itemList.map(item => {
+      item.isDone = false
+      return item
+    }))
+  }
+  const clearAllItems = () => {
+    setItemList([])
+  }
+
   return (
     <div className="App">
       <Input addItem={addItem} />
       <TodoList itemList={itemList} delItem={delItem} editItem={editItem} changeItem={changeItem} updateItem={updateItem} />
-      <Footer itemList={itemList} />
+      <Footer itemList={itemList} selectAllItems={selectAllItems} cancellAllItems={cancellAllItems} />
     </div>
-  );
+  )
 }
-
 
 export default App;

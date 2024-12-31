@@ -1,12 +1,12 @@
 // 最原始的一版写法，祖孙组件间的数据通过祖传父，父传子的方式实现
 
 import './App.css'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 function Todo({ todoObj, delItem, editItem, changeItem, updateItem }) {
   return (
     <div className='todo-container'>
-      <input type='checkbox' onChange={() => { changeItem(todoObj) }}></input>
+      <input type='checkbox' checked={todoObj.isDone} onChange={() => { changeItem(todoObj) }}></input>
       <span className='todo-content'>{!todoObj.isEdit && todoObj.content}</span>
       {/* ⚠️ */}
       {/* 这里如果用 value 属性，那么当编辑的时候，输入框里面时没有相应的，根据报错的提示，如果你要用 value，就需要绑定一个对应的 onChange 函数来处理用户的修改 */}
@@ -57,8 +57,9 @@ function Footer({ itemList, selectAllItems, cancellAllItems }) {
     <div>
       <input type='checkbox' onChange={selectAllItems}></input>
       <span>已完成：{isDoneLength}/ 总计：{totalLength}</span>
-      {/* 所有 todo 的 isDone 都为 true 的时候触发 */}
+      {/* 至少一个 todo 的 isDone 为 true 的时候触发 */}
       <button>清除选中的选项</button>
+      {/* 所有 todo 的 isDone 都为 true 的时候触发，同时取消上一个 button */}
       <button>清除所有选项</button>
     </div>)
 }
@@ -96,10 +97,18 @@ function App() {
     }))
   }
   const selectAllItems = () => {
-    setItemList(itemList.map(item => {
-      item.isDone = true
-      return item
-    }))
+    // 这里存在一个问题，就是状态数据变了
+    if (itemList.every(item => item.isDone === true)) {
+      setItemList(itemList.map(item => {
+        item.isDone = false
+        return item
+      }))
+    } else {
+      setItemList(itemList.map(item => {
+        item.isDone = true
+        return item
+      }))
+    }
   }
   const cancellAllItems = () => {
     setItemList(itemList.map(item => {

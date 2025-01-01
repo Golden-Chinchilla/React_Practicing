@@ -1,10 +1,26 @@
+.App {
+    width: 50vw;
+    height: 70vh;
+    background-color: beige;
+}
+
+
 .todo-container:hover {
     background-color: grey;
 }
 
+/* 内联元素不会响应 width 或 height 样式属性，除非通过某种方式将其变为块级元素或内联块级元素。 */
 .todo-content {
+    display: inline-block;
+    width: 30vw;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+}
+
+.btn {
+    margin-left: 5px;
 }
 
 .editBtn {
@@ -13,4 +29,13 @@
 
 .delBtn {
     background-color: darkred;
+}
+
+.todoList {
+    list-style-type: none;
+    border: 2px solid black;
+}
+
+.user-input {
+    width: 30vw;
 }

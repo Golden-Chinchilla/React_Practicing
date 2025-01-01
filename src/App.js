@@ -1,7 +1,7 @@
 // 最原始的一版写法，祖孙组件间的数据通过祖传父，父传子的方式实现
 
 import './App.css'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 
 function Todo({ todoObj, delItem, editItem, changeItem, updateItem }) {
   return (
@@ -12,9 +12,9 @@ function Todo({ todoObj, delItem, editItem, changeItem, updateItem }) {
       {/* 这里如果用 value 属性，那么当编辑的时候，输入框里面时没有相应的，根据报错的提示，如果你要用 value，就需要绑定一个对应的 onChange 函数来处理用户的修改 */}
       {/* 有一个更好的方案，这里用 defaultValue 属性，（defaultValue 是 JavaScript DOM API 提供的属性，而不是 HTML 的原生属性，所以在查 HTML 文档的时候查不到这个属性） */}
       {/* 其中涉及的原理就是React中的受控与非受控组件：使用了 value，那这就是一个受控组件，使用了 defaultValue 拿这就是一个非受控组件 */}
-      {todoObj.isEdit && <input autoFocus defaultValue={todoObj.content} onBlur={(e) => { updateItem(todoObj, e) }} />}
-      <button className='editBtn' onClick={() => { editItem(todoObj) }}>编辑</button>
-      <button className='delBtn' onClick={() => { delItem(todoObj) }}>删除</button>
+      {todoObj.isEdit && <input className='todo-content' autoFocus defaultValue={todoObj.content} onBlur={(e) => { updateItem(todoObj, e) }} />}
+      <button className='btn editBtn' onClick={() => { editItem(todoObj) }}>编辑</button>
+      <button className='btn delBtn' onClick={() => { delItem(todoObj) }}>删除</button>
     </div>
   )
 }
@@ -22,9 +22,14 @@ function Todo({ todoObj, delItem, editItem, changeItem, updateItem }) {
 
 function TodoList({ itemList, delItem, editItem, changeItem, updateItem }) {
   const renderList = itemList.map(item => <li key={item.uid}>
-    <Todo todoObj={item} delItem={delItem} editItem={editItem} changeItem={changeItem} updateItem={updateItem} />
+    <Todo
+      todoObj={item}
+      delItem={delItem}
+      editItem={editItem}
+      changeItem={changeItem}
+      updateItem={updateItem} />
   </li>)
-  return <ul>{renderList}</ul>
+  return <ul className='todoList'>{renderList}</ul>
 }
 
 
@@ -45,22 +50,24 @@ function Input({ addItem }) {
     }
   }
   return (
-    <input autoFocus placeholder='输入todo' onKeyUp={handleEnter} />
+    <input className='user-input' autoFocus placeholder='输入todo' onKeyUp={handleEnter} />
   )
 }
 
 // 逻辑参考可： https://www.bilibili.com/video/BV1Zy4y1K7SH/?p=76&share_source=copy_web&vd_source=0aea19ec4b198c37de1af0ea5c5b63fb
-function Footer({ itemList, selectAllItems, cancellAllItems }) {
+function Footer({ itemList, selectAllItems, clearSelectedItems, clearAllItems }) {
   const totalLength = itemList.length
   const isDoneLength = itemList.filter(item => item.isDone === true).length
+  // todo项的 isDone 属性全部为 true 时触发（isDone为true的元素个数等于数组长度的时候）
+  const allSelected = (itemList.filter(item => item.isDone === true).length === totalLength && totalLength !== 0)
   return (
     <div>
-      <input type='checkbox' onChange={selectAllItems}></input>
+      <input type='checkbox' checked={allSelected} onChange={selectAllItems} />
       <span>已完成：{isDoneLength}/ 总计：{totalLength}</span>
-      {/* 至少一个 todo 的 isDone 为 true 的时候触发 */}
-      <button>清除选中的选项</button>
+      {/* 至少一个 todo 的 isDone 为 true 时触发，全部todo 的 isDone 为true 时，button消失*/}
+      {(!itemList.every(item => item.isDone === false) && !itemList.every(item => item.isDone === true)) && <button onClick={clearSelectedItems}>清除选中的选项</button>}
       {/* 所有 todo 的 isDone 都为 true 的时候触发，同时取消上一个 button */}
-      <button>清除所有选项</button>
+      {itemList.every(item => item.isDone === true) && <button onClick={clearAllItems}>清除所有选项</button>}
     </div>)
 }
 
@@ -110,11 +117,8 @@ function App() {
       }))
     }
   }
-  const cancellAllItems = () => {
-    setItemList(itemList.map(item => {
-      item.isDone = false
-      return item
-    }))
+  const clearSelectedItems = () => {
+    setItemList(itemList.filter(item => item.isDone === false))
   }
   const clearAllItems = () => {
     setItemList([])
@@ -123,8 +127,19 @@ function App() {
   return (
     <div className="App">
       <Input addItem={addItem} />
-      <TodoList itemList={itemList} delItem={delItem} editItem={editItem} changeItem={changeItem} updateItem={updateItem} />
-      <Footer itemList={itemList} selectAllItems={selectAllItems} cancellAllItems={cancellAllItems} />
+
+      <TodoList
+        itemList={itemList}
+        delItem={delItem}
+        editItem={editItem}
+        changeItem={changeItem}
+        updateItem={updateItem} />
+
+      <Footer
+        itemList={itemList}
+        selectAllItems={selectAllItems}
+        clearSelectedItems={clearSelectedItems}
+        clearAllItems={clearAllItems} />
     </div>
   )
 }

@@ -1,12 +1,29 @@
 .App {
-    width: 50vw;
-    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-color: beige;
+    height: 50vh
 }
 
+/* .todo-content {
+    
+} */
+
+.todo-container {
+    display: flex;
+    align-items: center;
+    border: 1px dashed black;
+    margin-top: 5px;
+    margin-bottom: 3px;
+}
 
 .todo-container:hover {
-    background-color: grey;
+    background-color: lightgray;
+}
+
+.todo-container:hover .btn {
+    visibility: visible
 }
 
 /* 内联元素不会响应 width 或 height 样式属性，除非通过某种方式将其变为块级元素或内联块级元素。 */
@@ -16,10 +33,27 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
 
+.todo-editing {
+    position: absolute;
+    width: 30vw;
+}
+
+.todoList {
+    list-style-type: none;
+    border: 2px solid black;
+    overflow: auto;
+    width: 40vw;
+}
+
+.user-input {
+    width: 30vw;
+    margin-top: 1vh;
 }
 
 .btn {
+    visibility: hidden;
     margin-left: 5px;
 }
 
@@ -31,11 +65,17 @@
     background-color: darkred;
 }
 
-.todoList {
-    list-style-type: none;
-    border: 2px solid black;
+.horizon {
+    background-color: blueviolet;
+    height: 1px;
 }
 
-.user-input {
+.footer-container {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    border: 1px dashed rgb(216, 135, 135);
     width: 30vw;
+    height: 45px;
+    margin-bottom: 1vh;
 }

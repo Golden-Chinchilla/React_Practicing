@@ -7,12 +7,18 @@ function Todo({ todoObj, delItem, editItem, changeItem, updateItem }) {
   return (
     <div className='todo-container'>
       <input type='checkbox' checked={todoObj.isDone} onChange={() => { changeItem(todoObj) }}></input>
-      <span className='todo-content'>{!todoObj.isEdit && todoObj.content}</span>
+      {/* <span className='todo-content' onClick={() => changeItem(todoObj)}>{!todoObj.isEdit && todoObj.content}</span> */}
       {/* ⚠️ */}
       {/* 这里如果用 value 属性，那么当编辑的时候，输入框里面时没有相应的，根据报错的提示，如果你要用 value，就需要绑定一个对应的 onChange 函数来处理用户的修改 */}
       {/* 有一个更好的方案，这里用 defaultValue 属性，（defaultValue 是 JavaScript DOM API 提供的属性，而不是 HTML 的原生属性，所以在查 HTML 文档的时候查不到这个属性） */}
       {/* 其中涉及的原理就是React中的受控与非受控组件：使用了 value，那这就是一个受控组件，使用了 defaultValue 拿这就是一个非受控组件 */}
-      {todoObj.isEdit && <input className='todo-content' autoFocus defaultValue={todoObj.content} onBlur={(e) => { updateItem(todoObj, e) }} />}
+      {todoObj.isEdit
+        ?
+        <input className='todo-editing' autoFocus defaultValue={todoObj.content}
+          onBlur={(e) => { updateItem(todoObj, e) }} />
+        :
+        <span className='todo-content' onClick={() => changeItem(todoObj)}>{!todoObj.isEdit && todoObj.content}</span>
+      }
       <button className='btn editBtn' onClick={() => { editItem(todoObj) }}>编辑</button>
       <button className='btn delBtn' onClick={() => { delItem(todoObj) }}>删除</button>
     </div>
@@ -61,7 +67,7 @@ function Footer({ itemList, selectAllItems, clearSelectedItems, clearAllItems })
   // todo项的 isDone 属性全部为 true 时触发（isDone为true的元素个数等于数组长度的时候）
   const allSelected = (itemList.filter(item => item.isDone === true).length === totalLength && totalLength !== 0)
   return (
-    <div>
+    <div className='footer-container'>
       <input type='checkbox' checked={allSelected} onChange={selectAllItems} />
       <span>已完成：{isDoneLength}/ 总计：{totalLength}</span>
       {/* 至少一个 todo 的 isDone 为 true 时触发，全部todo 的 isDone 为true 时，button消失*/}
@@ -127,6 +133,8 @@ function App() {
   return (
     <div className="App">
       <Input addItem={addItem} />
+
+      < hr className='horizon' />
 
       <TodoList
         itemList={itemList}

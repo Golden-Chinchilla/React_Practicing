@@ -1,70 +1,28 @@
-// useReducer, useContext 的写法
+// 通过 fetch 获取数据
 
 import './App.css'
-import { useReducer, useContext, createContext } from 'react'
-
-const reducer = (prevState, action) => {
-    switch (action.type) {
-        case 'add':
-            return prevState + action.payload
-        case 'minus':
-            return prevState - action.payload
-        default:
-            return prevState
-    }
-}
-
-const MyContext = createContext(null)
-
-function Input(params) {
-
-}
-
-
-function TodoItem(params) {
-    const ctx = useContext(MyContext)
-    return (
-        <div>
-            <button onClick={() => { alert(ctx + 111111) }}>todo组件的button</button>
-            <button onClick={() => { alert(ctx + 222222) }}>todo组件的button</button>
-            <button onClick={() => { alert(ctx + 333333) }}>todo组件的button</button>
-        </div>
-
-    )
-}
-
-
-function TodoList(params) {
-    return (
-        <div>
-            <TodoItem />
-            <TodoItem />
-            <TodoItem />
-        </div>
-
-    )
-}
-
-
-function Bottom(params) {
-
-}
+import { useState } from 'react'
 
 
 function App() {
+    const [tokenAddressList, setTokenAddressList] = useState([])
 
-    const [state, dispatch] = useReducer(reducer, 123)
+    // 返回值：[{}, {}, {}]
+    const getInfo = () => {
+        fetch('https://api.dexscreener.com/token-profiles/latest/v1')
+            .then(response => response.json())
+            .then(data => {
+                setTokenAddressList(data.map(item => <li key={item.tokenAddress}>{item.tokenAddress}</li>))
+            })
+            .catch(err => alert(err))
+    }
 
     return (
-        <MyContext.Provider value='我是一个上下文数据：Context'>
-            <div className="App">
-                <p>Count: {state}</p>
-                <button onClick={() => dispatch({ type: 'add', payload: 10 })}>Click +1</button>
-                <button onClick={() => dispatch({ type: 'minus', payload: 10 })}>Click -1</button>
-                <hr />
-                <TodoList />
-            </div>
-        </MyContext.Provider>
+        <div className="App">
+            <ul>{tokenAddressList}</ul>
+            <button onClick={getInfo}>获取 tokenAddress</button>
+        </div>
+
     )
 }
 

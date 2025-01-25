@@ -1,31 +1,27 @@
-import './App.css'
-import { useState } from 'react'
-import { Button, DatePicker } from 'antd'
-import { SmileOutlined } from '@ant-design/icons'
+import { Routes, Route, Link } from 'react-router';
 
 function App() {
-    const [tokenAddressList, setTokenAddressList] = useState([])
-
-    // 返回值：[{}, {}, {}]
-    const getInfo = () => {
-        fetch('https://api.dexscreener.com/token-profiles/latest/v1')
-            .then(response => response.json())
-            .then(data => {
-                setTokenAddressList(data.map(item => <li key={item.tokenAddress}>{item.tokenAddress}</li>))
-            })
-            .catch(err => alert(err))
-    }
-
     return (
-        <div className="App">
-            <ul>{tokenAddressList}</ul>
-            <button onClick={getInfo}>获取 tokenAddress</button><br />
-            <Button type="primary">PRESS ME</Button><br />
-            <DatePicker placeholder="select date" /><br />
-            <SmileOutlined />
-        </div>
+        <div>
+            <nav>
+                <Link to="/">Home</Link>
+                <Link to="/about">About</Link>
+            </nav>
 
-    )
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="about" element={<About />} />
+            </Routes>
+        </div>
+    );
+}
+
+function Home() {
+    return <h1>Home Page</h1>;
+}
+
+function About() {
+    return <h1>About Page</h1>;
 }
 
 export default App;
